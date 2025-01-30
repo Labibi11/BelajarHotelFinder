@@ -4,7 +4,7 @@ const kamar = require('./../assets/kamar.jpg');
 
 function Favorite() {
   return (
-    <View>
+    <View style={{flex: 1, backgroundColor: '#efefef'}}>
       <View
         style={{
           backgroundColor: 'white',
