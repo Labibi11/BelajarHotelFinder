@@ -1,22 +1,16 @@
+import {useNavigation} from '@react-navigation/native';
 import * as React from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
+import ImageHeader from '../components/ImageHeader';
 const kamar = require('./../assets/kamar.jpg');
 
 function Home() {
+  const navigation = useNavigation();
   return (
     <View style={{flex: 1, backgroundColor: '#efefef'}}>
-      <View>
-        <Image
-          source={kamar}
-          style={{
-            height: 200,
-            width: 392,
-            borderBottomRightRadius: 20,
-            borderBottomLeftRadius: 20,
-          }}
-        />
-      </View>
-      <TouchableOpacity>
+      <ImageHeader />
+      {/* tombol mulai mencari */}
+      <TouchableOpacity onPress={() => navigation.navigate('Pencarian')}>
         <Text
           style={{
             backgroundColor: '#074799',
@@ -30,8 +24,10 @@ function Home() {
           Mulai Mencari
         </Text>
       </TouchableOpacity>
+
+      {/* daftar hotel */}
       <View style={{margin: 20, borderBottomWidth: 1}}>
-        <Text style={{fontSize: 18}}>Last Seen</Text>
+        <Text style={{fontSize: 18}}>Explore</Text>
       </View>
       <View
         style={{
