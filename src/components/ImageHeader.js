@@ -45,14 +45,14 @@ function ImageHeader() {
         <View
           key={index}
           style={{
-            height: 175,
+            height: 220,
             backgroundColor: '#63A2B0',
             borderBottomLeftRadius: 25,
             borderBottomRightRadius: 25,
           }}>
           <Image
             style={{
-              height: 175,
+              height: 220,
               width: width,
               borderBottomLeftRadius: 25,
               borderBottomRightRadius: 25,
