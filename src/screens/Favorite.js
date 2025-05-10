@@ -1,8 +1,34 @@
-import * as React from 'react';
-import {View, Text, ScrollView, Image} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import axios from 'axios';
+import {View, Text, ScrollView, Image, TouchableOpacity} from 'react-native';
 const kamar = require('./../assets/kamar.jpg');
+import {useNavigation} from '@react-navigation/native';
 
 function Favorite() {
+  const navigation = useNavigation();
+  const [penginapan, setPenginapan] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPenginapan = async () => {
+      const userId = await AsyncStorage.getItem('userId');
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `http://192.168.43.6/api-test/api_favorite.phpuser_id=${userId}`,
+        );
+        setPenginapan(response.data.data);
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching penginapan:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPenginapan();
+  }, []);
+
   return (
     <View style={{flex: 1, backgroundColor: '#efefef'}}>
       <View
@@ -20,51 +46,42 @@ function Favorite() {
           FAVORITE
         </Text>
       </View>
-      <ScrollView style={{backgroundColor: '#f8f8f8'}}>
-        <View
-          style={{
-            marginTop: 20,
-            marginHorizontal: 20,
-            borderBottomWidth: 0.5,
-            borderColor: 'gray',
-          }}>
-          <Image source={kamar} style={{width: 350, height: 200}} />
-          <Text style={{fontSize: 17}}>NAMA HOTEL</Text>
-          <Text style={{marginVertical: 10, fontSize: 17}}>KETERANGAN</Text>
-        </View>
-        <View
-          style={{
-            marginTop: 20,
-            marginHorizontal: 20,
-            borderBottomWidth: 0.5,
-            borderColor: 'gray',
-          }}>
-          <Image source={kamar} style={{width: 350, height: 200}} />
-          <Text style={{fontSize: 17}}>NAMA HOTEL</Text>
-          <Text style={{marginVertical: 10, fontSize: 17}}>KETERANGAN</Text>
-        </View>
-        <View
-          style={{
-            marginTop: 20,
-            marginHorizontal: 20,
-            borderBottomWidth: 0.5,
-            borderColor: 'gray',
-          }}>
-          <Image source={kamar} style={{width: 350, height: 200}} />
-          <Text style={{fontSize: 17}}>NAMA HOTEL</Text>
-          <Text style={{marginVertical: 10, fontSize: 17}}>KETERANGAN</Text>
-        </View>
-        <View
-          style={{
-            marginTop: 20,
-            marginHorizontal: 20,
-            borderBottomWidth: 0.5,
-            borderColor: 'gray',
-          }}>
-          <Image source={kamar} style={{width: 350, height: 200}} />
-          <Text style={{fontSize: 17}}>NAMA HOTEL</Text>
-          <Text style={{marginVertical: 10, fontSize: 17}}>KETERANGAN</Text>
-        </View>
+      <ScrollView style={{backgroundColor: '#efefef'}}>
+        {penginapan.map((item, index) => {
+          return (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('Details', {dataPenginapan: item})
+              }
+              key={index}
+              style={{
+                margin: 20,
+                backgroundColor: '#ffffff',
+                borderRadius: 20,
+              }}>
+              <View>
+                <Image
+                  source={kamar}
+                  style={{width: 353, height: 200, borderRadius: 20}}
+                />
+              </View>
+              <View
+                style={{
+                  marginLeft: 20,
+                  paddingVertical: 10,
+
+                  width: '90%',
+                }}>
+                <Text numberOfLines={1} style={{fontSize: 17}}>
+                  {item.nama}
+                </Text>
+                <Text numberOfLines={1} style={{fontSize: 17}}>
+                  {item.alamat}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </View>
   );
