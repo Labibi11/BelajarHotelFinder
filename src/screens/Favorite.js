@@ -1,33 +1,41 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import axios from 'axios';
 import {View, Text, ScrollView, Image, TouchableOpacity} from 'react-native';
 const kamar = require('./../assets/kamar.jpg');
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Favorite() {
   const navigation = useNavigation();
   const [penginapan, setPenginapan] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPenginapan = async () => {
-      const userId = await AsyncStorage.getItem('userId');
-      setLoading(true);
-      try {
-        const response = await axios.get(
-          `http://192.168.43.6/api-test/api_favorite.phpuser_id=${userId}`,
-        );
-        setPenginapan(response.data.data);
-        console.log(response);
-      } catch (error) {
-        console.error('Error fetching penginapan:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchPenginapan = async () => {
+        const userId = await AsyncStorage.getItem('userId');
+        setLoading(true);
+        try {
+          const response = await axios.get(
+            `http://192.168.43.6/api-test/api_favorite.php?user_id=${userId}`,
+          );
+          const result = response.data;
 
-    fetchPenginapan();
-  }, []);
+          if (result.status === 'success') {
+            setPenginapan(response.data.data.map(item => item.penginapan));
+          } else {
+            setPenginapan([]);
+          }
+        } catch (error) {
+          console.error('Error fetching favorites:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      console.log(penginapan);
+      fetchPenginapan();
+    }, []),
+  );
 
   return (
     <View style={{flex: 1, backgroundColor: '#efefef'}}>
