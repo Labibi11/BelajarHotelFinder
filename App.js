@@ -19,6 +19,7 @@ const FavoriteIcon = require('./src/assets/Favorite.png');
 const SearchIcon = require('./src/assets/Search.png');
 const ProfileIcon = require('./src/assets/User.png');
 
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
@@ -95,8 +96,6 @@ function MyTabs() {
     </Tab.Navigator>
   );
 }
-
-const Stack = createNativeStackNavigator();
 
 function RootStack() {
   return (
