@@ -82,7 +82,7 @@ function Details({route}) {
       </TouchableOpacity>
       <ScrollView style={{backgroundColor: '#efefef'}}>
         <Image
-          source={kamar}
+          source={{uri: 'http://192.168.43.6/api-test/admin/'+dataPenginapan.foto}}
           style={{
             width: '100%',
             height: 250,

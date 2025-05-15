@@ -134,7 +134,7 @@ function Pencarian2() {
                 }}>
                 <View>
                   <Image
-                    source={kamar}
+                    source={{uri: 'http://192.168.43.6/api-test/admin/'+item.foto}}
                     style={{width: 100, height: 100, borderRadius: 20}}
                   />
                 </View>

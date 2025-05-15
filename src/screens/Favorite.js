@@ -68,8 +68,12 @@ function Favorite() {
                 borderRadius: 20,
               }}>
               <View>
+                console.log('Foto URL:', item.foto);
+
                 <Image
-                  source={kamar}
+                  source={{
+                    uri: 'http://192.168.43.6/api-test/admin/' + item.foto,
+                  }}
                   style={{width: 353, height: 200, borderRadius: 20}}
                 />
               </View>

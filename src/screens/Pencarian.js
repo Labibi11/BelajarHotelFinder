@@ -1,5 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, ScrollView, TouchableOpacity, Image} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  TextInput,
+} from 'react-native';
 import axios from 'axios';
 import {useNavigation} from '@react-navigation/native';
 import Geolocation from '@react-native-community/geolocation';
@@ -137,13 +144,15 @@ function Pencarian() {
                 }}>
                 <View>
                   <Image
-                    source={kamar}
+                    source={{
+                      uri: 'http://192.168.43.6/api-test/admin/' + item.foto,
+                    }}
                     style={{width: 100, height: 100, borderRadius: 20}}
                   />
                 </View>
                 <View style={{marginLeft: 20, width: '60%'}}>
                   <Text numberOfLines={1} style={{fontSize: 17}}>
-                    {item.nama}
+                    {'kjmj' + item.nama}
                   </Text>
                   <Text numberOfLines={1} style={{fontSize: 17}}>
                     {item.alamat}
