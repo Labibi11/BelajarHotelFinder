@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,12 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import {useNavigation, useRoute} from '@react-navigation/native';
+import {launchImageLibrary} from 'react-native-image-picker';
+
 const BackIcon = require('./../assets/back.png');
 const BlindIcon = require('./../assets/Blind.png');
 const EyeIcon = require('./../assets/eye.png');
+const ProfileIcon = require('./../assets/Profil.png');
 
 function EditProfile() {
   const navigation = useNavigation();
@@ -28,8 +31,11 @@ function EditProfile() {
   const [password, setPassword] = useState(userData.password);
   const [errorPassword, setErrorPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-
   const [errorEmail, setErrorEmail] = useState('');
+  const [imageUri, setImageUri] = useState(
+    `http://192.168.43.6/api-test/${userData.foto}`,
+  );
+  const [imageName, setImageName] = useState(null);
 
   const handleEmailChange = text => {
     setEmail(text);
@@ -53,38 +59,61 @@ function EditProfile() {
     }
   };
 
+  const handleChoosePhoto = () => {
+    
+    const options = {
+      mediaType: 'photo',
+      quality: 1,
+    };
+
+    launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+        Alert.alert('Error', 'Gagal memilih gambar. Coba lagi.');
+      } else if (response.assets && response.assets.length > 0) {
+        const asset = response.assets[0];
+        setImageUri(asset.uri);
+        setImageName(asset.fileName || 'profile.jpg'); // fallback jika fileName tidak ada
+      }
+    });
+  };
+
   const handleSave = async () => {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
 
-    if (password.length < 6) {
-      Alert.alert('Validasi Gagal', 'Password harus minimal 6 karakter');
+    if (password.length < 6 || !hasUpperCase || !hasNumber) {
+      Alert.alert('Validasi Gagal', errorPassword);
       return;
-    } else if (!hasUpperCase) {
-      Alert.alert(
-        'Validasi Gagal',
-        'Password harus mengandung minimal 1 huruf besar',
-      );
-      return;
-    } else if (!hasNumber) {
-      Alert.alert(
-        'Validasi Gagal',
-        'Password harus mengandung minimal 1 angka',
-      );
-      return;
+    }
+
+
+    const formData = new FormData();
+    formData.append('id', userData.id);
+    formData.append('nama', nama);
+    formData.append('alamat', alamat);
+    formData.append('jenis_kelamin', jenis_kelamin);
+    formData.append('no_hp', noHp);
+    formData.append('email', email);
+    formData.append('password', password);
+    if (imageUri && imageName) {
+      formData.append('foto', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: imageName,
+      });
     }
 
     try {
       const response = await axios.post(
         'http://192.168.43.6/api-test/api_edit.php',
+        formData,
         {
-          id: userData.id,
-          nama: nama,
-          alamat: alamat,
-          jenis_kelamin: jenis_kelamin,
-          no_hp: noHp,
-          email: email,
-          password: password,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         },
       );
 
@@ -92,24 +121,44 @@ function EditProfile() {
         Alert.alert('Berhasil', 'Profil berhasil diperbarui');
         navigation.goBack();
       } else {
-        Alert.alert('Gagal', response.data.message);
+        Alert.alert(
+          'Gagal',
+          response.data.message || 'Gagal memperbarui profil',
+        );
       }
     } catch (error) {
-      Alert.alert('Error', 'Gagal menghubungi server');
-      console.log(error);
-    }
+      console.error(error);
+      Alert.alert('Sedang menyimpan', ' Tunggu sebentar...');
+    } 
   };
 
   return (
-    <View style={{backgroundColor: '#fff', flex: 1, marginBottom: -60}}>
-      <View style={{backgroundColor: '#efefef'}}>
-        <TouchableOpacity
-          style={{height: 60, padding: 7}}
-          onPress={() => navigation.goBack()}>
-          <Image source={BackIcon} style={{height: 50, width: 40}} />
+    <View style={{backgroundColor: '#fff', flex: 1}}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image source={BackIcon} style={styles.backIcon} />
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>Edit Profil</Text>
       </View>
+
       <ScrollView contentContainerStyle={styles.container}>
+        <TouchableOpacity
+          onPress={handleChoosePhoto}
+          style={{alignItems: 'center', margin: 30}}>
+          <Image
+            key={imageUri}
+            source={imageUri ? {uri: imageUri} : ProfileIcon}
+            style={{
+              height: 125,
+              width: 125,
+              borderRadius: 65,
+              borderWidth: 2,
+              borderColor: '#ddd',
+            }}
+          />
+        </TouchableOpacity>
+
         <Text style={styles.label}>Nama</Text>
         <TextInput style={styles.input} value={nama} onChangeText={setNama} />
 
@@ -202,6 +251,23 @@ function EditProfile() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    backgroundColor: '#efefef',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+  },
+  backIcon: {
+    height: 30,
+    width: 25,
+    resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
   container: {
     padding: 20,
     backgroundColor: '#fff',
@@ -219,8 +285,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   inputPass: {
-    borderWidth: 1,
-    borderColor: '#fff',
     padding: 10,
     marginTop: 5,
     borderRadius: 5,
